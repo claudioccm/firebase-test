@@ -8,7 +8,8 @@ var del             = require('del'),
     sourcemaps      = require('gulp-sourcemaps'),
     browserSync     = require('browser-sync'),
     runSequence     = require('run-sequence').use(gulp),
-    nunjucksRender  = require('gulp-nunjucks-render');
+    nunjucksRender  = require('gulp-nunjucks-render'),
+    nunjucks        = require('gulp-nunjucks');
 
 // Clean Dist
 gulp.task('clean', function () {
@@ -35,9 +36,21 @@ gulp.task('sass', function () {
     .pipe(browserSync.reload({ stream: true }));
 });
 
+// gulp.task('templates', function () {
+//   return gulp.src('source/templates/**/*')
+//     .pipe(gulp.dest('public/'));
+// });
+
+gulp.task('templates', function () {
+    gulp.src('source/templates/index.html')
+        .pipe(nunjucks.precompile())
+        .pipe(gulp.dest('public'))
+    }
+);
+
 gulp.task('vendor', function () {
-  return gulp.src('source/static/vendor/**/*')
-    .pipe(gulp.dest('public/vendor'));
+  return gulp.src('source/vendor/**/*')
+    .pipe(gulp.dest('public'));
 });
 
 gulp.task('image', function () {
@@ -52,19 +65,6 @@ gulp.task('js', function () {
     .pipe(gulp.dest('public'));
 });
 
-// Nunjucks
-gulp.task('nunjucks', function () {
-  nunjucksRender.nunjucks.configure(['source/templates/']);
-
-  // Gets .html and .nunjucks files in pages
-  return gulp.src('source/templates/**/[^_]*.html')
-    // Renders template with nunjucks
-    .pipe(nunjucksRender({ path: 'source/templates' }))
-    // output files in app folder
-    .pipe(gulp.dest('public'))
-    .pipe(browserSync.reload({ stream: true }));
-});
-
 gulp.task('push-gh-master', shell.task(['git push origin master']));
 
 gulp.task('push-gh-pages', function () {
@@ -75,7 +75,7 @@ gulp.task('push-gh-pages', function () {
 gulp.task('deploy', function (callback) {
   runSequence(
     'clean',
-    ['sass', 'js', 'image', 'nunjucks', 'vendor'],
+    ['sass', 'js', 'image', 'vendor'], //'nunjucks',
     'push-gh-master',
     'push-gh-pages',
     callback
@@ -85,7 +85,7 @@ gulp.task('deploy', function (callback) {
 gulp.task('watch', function () {
   gulp.watch('source/static/**/*.js', ['js']);
   gulp.watch('source/sass/**/*.scss', ['sass']);
-  gulp.watch('source/templates/**/*.html', ['nunjucks']);
+  gulp.watch('source/templates/**/*.html', ['templates']);
   gulp.watch('source/static/vendor/**/*.js', ['vendor']);
   gulp.watch('source/static/vendorimages/**/*', ['images']);
 });
@@ -93,7 +93,7 @@ gulp.task('watch', function () {
 gulp.task('default', function (callback) {
   runSequence(
     'clean',
-    ['sass', 'js', 'image', 'nunjucks', 'vendor'],
+    ['templates', 'sass', 'js', 'image', 'vendor'], //'nunjucks',
     ['browserSync', 'watch'],
     callback
   );
