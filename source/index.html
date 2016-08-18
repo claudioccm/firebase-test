@@ -8,19 +8,13 @@
 
         <link rel="stylesheet" href="styles/styles.css"/>
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-        <script src="nunjucks.min.js"></script>
-        <!--<script src="./nunjucks-slim.min.js"></script>-->
-        <script src="./scripts.js"></script>
-
-        <script>
-          var res = nunjucks.render('index.js');
-        </script>
     </head>
 
-    <body> 
-        <h1>Worked</h1>
-        <h2>{{ 2 + 1 }}</h2>
-
-        
+    <body>
+        <script src="nunjucks.min.js"></script>
+        <script src="views/test.js"></script>
+        <script>
+          document.write(nunjucks.render('test.html'))
+        </script>
     </body>
 </html>
